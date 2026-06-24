@@ -1,0 +1,110 @@
+{
+  "name": "Miyun",
+  "root_dir": "../data/Miyun",
+  "scenario": "Miyun_Calib_01",
+  "pollutant": {
+    "code": "TN",
+    "name_cn": "总氮",
+    "unit": "mg/L",
+    "K_decay": 0.05,
+    "a_coef": 0.8,
+    "gb3838_limits": {
+      "Ⅰ类": 0.2,
+      "Ⅱ类": 0.5,
+      "Ⅲ类": 1.0,
+      "Ⅳ类": 1.5,
+      "Ⅴ类": 2.0
+    },
+    "loose_add": 1.0,
+    "loose_cap": 2.0,
+    "rch_sub_col": 1,
+    "rch_mon_col": 3,
+    "rch_flow_col": 6,
+    "rch_totload_col": 47,
+    "rch_in_cols": [
+      11,
+      15,
+      17,
+      19
+    ],
+    "rch_out_cols": [
+      12,
+      16,
+      18,
+      20
+    ],
+    "sub_id_col": 1,
+    "sub_mon_col": 3,
+    "sub_yield_cols": [
+      14,
+      16,
+      20,
+      21
+    ],
+    "point_subbasin_col": "Subbasin"
+  },
+  "calibration": {
+    "factors": [
+      {
+        "name": "Slope_pct",
+        "direction": "negative",
+        "threshold": 19.153,
+        "provenance": "default"
+      },
+      {
+        "name": "Elev_m",
+        "direction": "negative",
+        "threshold": 284.546,
+        "provenance": "default"
+      }
+    ],
+    "mode": "default",
+    "auc": {},
+    "notes": "密云内置默认：沿用原 generate_dynamic_standards.py 的 ROC 阈值。"
+  },
+  "calibration_by_year": {},
+  "years": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "analysis_years": [
+    2015,
+    2016,
+    2017,
+    2018,
+    2019,
+    2020,
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "n_subbasins": 32,
+  "named_subbasins": {
+    "32": {
+      "zh": "密云水库",
+      "en": "Miyun Reservoir"
+    }
+  },
+  "conc_clip_upper": 7.0,
+  "reservoir_overrides": {
+    "32": {
+      "K": 0.025,
+      "V": 2000000000.0,
+      "C_it": 1.0
+    }
+  },
+  "data_inputs": {},
+  "std_sub_col": "子流域ID(SUB)",
+  "std_limit_col": null
+}

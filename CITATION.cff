@@ -1,0 +1,37 @@
+# GitHub reads this file to show a "Cite this repository" button.
+# Replace every [PLACEHOLDER] before publishing.
+cff-version: 1.2.0
+title: "WEC-Risk Platform: an integrated tool for SWAT-based water environmental capacity and two-class pollution-risk assessment"
+message: "If you use this software, please cite it using the metadata below. A peer-reviewed paper describing the method is in preparation and will be added here on acceptance."
+type: software
+authors:
+  - family-names: "Sun"
+    given-names: "Haiming"
+    email: "haiming.sun33@gmail.com"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+    # affiliation: "[Your institution]"
+repository-code: "https://github.com/Hai-mian-33/WEC-Risk-Platform"
+license: MIT
+version: "1.0"
+date-released: "2026-06-13"
+keywords:
+  - SWAT
+  - water environmental capacity
+  - water quality risk assessment
+  - dynamic adaptive standard
+  - total nitrogen
+  - GIS
+# The peer-reviewed paper this software implements is in preparation.
+# Uncomment and fill in on acceptance — GitHub's "Cite this repository" will
+# then prefer the paper citation over the software entry above.
+# preferred-citation:
+#   type: article
+#   title: "<Paper title>"
+#   authors:
+#     - family-names: "Sun"
+#       given-names: "Haiming"
+#   year: 2026
+#   journal: "<Journal name>"
+#   # volume: "<vol>"
+#   # issue: "<issue>"
+#   # doi: "<10.xxxx/xxxxx>"

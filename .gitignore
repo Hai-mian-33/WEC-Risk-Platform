@@ -1,0 +1,36 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.venv-*/
+env/
+
+# ---- PyInstaller build artifacts ----
+build/
+dist/
+*.spec.bak
+
+# ---- Program-generated outputs (regenerated at run time; do not commit) ----
+*_platform.csv
+wec_map.html
+result.csv
+
+# ---- Build / temp / test artifacts ----
+build_log*.txt
+*.log
+_demo*.py
+_g.txt
+_t/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ---- Large SWAT model inputs (only the analysis-ready subset is tracked) ----
+# Uncomment to keep full models out if you copy one in:
+# data/**/TxtInOut/*.pcp
+# data/**/TxtInOut/*.tmp
+# data/**/*.mdb

@@ -1,0 +1,20 @@
+# WEC-Risk Platform 运行依赖（Python 3.12）
+# 系统 Python 已含 pandas/numpy/scipy/scikit-learn/geopandas/dbfread 时，
+# 只需补装界面与地图相关依赖。
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+geopandas>=1.0
+shapely>=2.0
+pyproj>=3.5
+pyogrio>=0.7        # geopandas 默认矢量 IO 后端
+dbfread>=2.0
+matplotlib>=3.7
+folium>=0.16
+branca>=0.7
+PyQt5>=5.15
+PyQtWebEngine>=5.15
+pyshp>=2.3          # 备用 shapefile 读取
+# 打包
+pyinstaller>=6.0

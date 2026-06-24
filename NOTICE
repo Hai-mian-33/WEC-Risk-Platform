@@ -1,0 +1,37 @@
+WEC-Risk Platform
+Water Environmental Capacity & Risk Assessment Platform
+水环境容量与风险评估集成平台
+
+Copyright (c) 2026 Sun Haiming. Released under the MIT License (see LICENSE).
+
+------------------------------------------------------------------------------
+PATENT NOTICE / 专利声明
+------------------------------------------------------------------------------
+The water-quality management METHOD implemented by this software (dynamic
+adaptive standard + base/actual water environmental capacity + two-class
+pollution risk indices, i.e. local risk LP and upstream-transport risk TR) is
+the subject of a separate patent / patent application held by the author(s)
+(China patent application No. 2026108799528).
+
+The MIT License above applies to THIS SOFTWARE (source code) only. It does NOT
+grant any license, express or implied, to the patented method. Use of the
+patented method may require separate authorization from the patent holder.
+
+本软件所实现的水质管理“方法”（动态自适应标准 + 基础/实际水环境容量 + 两类污染
+风险指数 LP/TR）已由作者另行申请/持有专利（中国专利申请号 2026108799528）。上述 MIT 许可仅
+适用于本软件“代码”，不授予对该专利方法的任何许可；使用该专利方法可能需另行获得
+专利权人授权。
+
+------------------------------------------------------------------------------
+THIRD-PARTY COMPONENTS / 第三方组件
+------------------------------------------------------------------------------
+This software builds on open-source libraries, each under its own license,
+including: PyQt5 / PyQtWebEngine (GPL/commercial), Leaflet & folium (BSD/MIT),
+pandas, numpy, scipy, scikit-learn, geopandas, shapely, pyproj, pyogrio,
+matplotlib, branca, dbfread. Base-map tiles are © OpenStreetMap contributors,
+© CARTO, and Esri (used under their respective terms). SWAT (Soil & Water
+Assessment Tool) is developed by USDA-ARS / Texas A&M.
+
+NOTE: PyQt5 is GPL-licensed. If you redistribute a built binary (the bundled
+.exe), ensure your distribution complies with PyQt5's GPL terms (or obtain a
+Riverbank commercial license). Distributing the source under MIT is unaffected.
