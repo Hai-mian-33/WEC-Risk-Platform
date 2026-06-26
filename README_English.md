@@ -69,6 +69,8 @@ It reads results from a SWAT2012 project you have **already built and run**. In 
 **Point-source file naming & format (important):**
 - File name: `PL_Point_<pollutant>_<year>.csv`, e.g. `PL_Point_TN_2022.csv`.
 - Columns: `Subbasin` (subbasin id), `PL_point_TN_g_s` (point-source flux in **g/s**).
+  - ⚠️ The value **must be a flux in g/s**. If your source data is an annual load, convert with
+    `g/s = kg_per_year ÷ (365 × 86400) × 1e3` (or `÷ (365 × 86400)` for g/year). **Do not mistake kg/yr for t/yr** (that inflates every value 1000×).
 - The year is taken from the file name. **Only years that have their own point-source file** get an
   "actual capacity" and "risk" result (see §6).
 - You may also type values (g/s) directly in the table on the left of tab ④ and click "Apply and recompute".

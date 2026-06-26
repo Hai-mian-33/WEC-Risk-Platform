@@ -23,6 +23,11 @@ _demo*.py
 _g.txt
 _t/
 
+# ---- Data-fix backups & internal handoff notes (keep local, do not publish) ----
+*.bak
+*.bak_unitfix
+POINT_SOURCE_UNIT_FIX_CHANGELOG.md
+
 # ---- OS / editor ----
 .DS_Store
 Thumbs.db
