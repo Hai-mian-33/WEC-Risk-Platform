@@ -163,7 +163,7 @@ If you use this software, please cite **both** the software and the paper. Citat
   source under MIT is unaffected, but redistributing the built binary must comply with PyQt5's GPL
   terms (or use a commercial Qt license). 见 `NOTICE`。
 
-> ℹ️ Author, patent No. (CN 2026108799528) and repository URL are filled in. The **paper citation**
+> ℹ️ Author, Chinese Patent Application No. (202610879952.8) and repository URL are filled in. The **paper citation**
 > (title / journal / DOI) will be added to `CITATION.cff` and the BibTeX above once the manuscript is accepted.
 
 ## 📖 Manuals / 详细手册

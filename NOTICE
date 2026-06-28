@@ -11,14 +11,14 @@ The water-quality management METHOD implemented by this software (dynamic
 adaptive standard + base/actual water environmental capacity + two-class
 pollution risk indices, i.e. local risk LP and upstream-transport risk TR) is
 the subject of a separate patent / patent application held by the author(s)
-(China patent application No. 2026108799528).
+(Chinese Patent Application No. 202610879952.8).
 
 The MIT License above applies to THIS SOFTWARE (source code) only. It does NOT
 grant any license, express or implied, to the patented method. Use of the
 patented method may require separate authorization from the patent holder.
 
 本软件所实现的水质管理“方法”（动态自适应标准 + 基础/实际水环境容量 + 两类污染
-风险指数 LP/TR）已由作者另行申请/持有专利（中国专利申请号 2026108799528）。上述 MIT 许可仅
+风险指数 LP/TR）已由作者另行申请专利（中国专利申请号 202610879952.8）。上述 MIT 许可仅
 适用于本软件“代码”，不授予对该专利方法的任何许可；使用该专利方法可能需另行获得
 专利权人授权。
 

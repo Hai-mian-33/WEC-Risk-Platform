@@ -275,5 +275,5 @@ metadata is in [`CITATION.cff`](CITATION.cff) (GitHub shows a "Cite this reposit
   under MIT is unaffected, but redistributing the built binary must comply with PyQt5's GPL terms
   (or use a commercial Qt license).
 
-> Author, patent No. (CN 2026108799528) and repository URL are filled in. The paper citation
+> Author, Chinese Patent Application No. (202610879952.8) and repository URL are filled in. The paper citation
 > (title / journal / DOI) will be added to `CITATION.cff` and the BibTeX above once the manuscript is accepted.
