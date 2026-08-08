@@ -128,19 +128,27 @@ class StageAResult:
 
 
 def compute_dynamic_standard(project: Project, subattr: pd.DataFrame,
-                             calibration: Optional[Calibration] = None) -> pd.DataFrame:
-    """CRS-ACM 动态自适应标准（复刻 generate_dynamic_standards.py，因子通用化）。
+                             calibration: Optional[Calibration] = None,
+                             baseline_conc: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+    """CRS-ACM spatially adaptive benchmark used in the final revision.
 
-    calibration 为 None 时用 project.calibration；传入逐年标定即得该年的动态标准。
+    Factor scores are combined as a weighted mean, with no basin-wide min-max
+    stretching.  Already-compliant and explicitly protected nodes retain their
+    strict benchmark.
     """
     pol = project.pollutant
     calib = calibration or project.calibration
     strict = load_strict_standards(project, subattr)
     df = strict.merge(subattr, on="SUB", how="left")
+    if baseline_conc is not None and {"SUB", "conc"}.issubset(baseline_conc.columns):
+        df = df.merge(baseline_conc[["SUB", "conc"]].rename(columns={"conc": "C_base"}), on="SUB", how="left")
+    else:
+        df["C_base"] = np.nan
     df["C_loose"] = np.minimum(df["C_strict"] + pol.loose_add, pol.loose_cap)
 
     factors = calib.factors
     fi_cols = []
+    weights = []
     for f in factors:
         if f.name not in df.columns:
             continue
@@ -152,11 +160,19 @@ def compute_dynamic_standard(project: Project, subattr: pd.DataFrame,
         col = f"Fi_{f.name}"
         df[col] = fi
         fi_cols.append(col)
+        weights.append(float(getattr(f, "weight", 1.0) or 1.0))
 
-    df["raw_index"] = df[fi_cols].sum(axis=1) if fi_cols else 0.0
-    lo, hi = df["raw_index"].min(), df["raw_index"].max()
-    df["Adjustment_Index"] = 0.0 if hi == lo else (df["raw_index"] - lo) / (hi - lo)
-    df["C_dynamic"] = df["C_strict"] + (df["C_loose"] - df["C_strict"]) * df["Adjustment_Index"]
+    if fi_cols:
+        weight_arr = np.asarray(weights, dtype=float)
+        df["raw_index"] = (df[fi_cols].to_numpy(float) * weight_arr).sum(axis=1) / weight_arr.sum()
+    else:
+        df["raw_index"] = 0.0
+    df["Adjustment_Index"] = df["raw_index"].clip(0.0, 1.0)
+    candidate = df["C_strict"] + (df["C_loose"] - df["C_strict"]) * df["Adjustment_Index"]
+    protected = df["SUB"].astype(int).isin(set(project.protection_nodes))
+    compliant = df["C_base"].notna() & (df["C_base"] <= df["C_strict"])
+    df["Protection_Gate"] = protected | compliant
+    df["C_dynamic"] = np.where(df["Protection_Gate"], df["C_strict"], candidate)
     df["Recommended_Class"] = df["C_dynamic"].apply(pol.classify_standard)
     return df
 
@@ -176,7 +192,7 @@ def compute_base_capacity(project: Project, topology: pd.DataFrame,
 
     upstream_map = dict(zip(topology["SUB"], topology["UPSTREAMS"].apply(_as_list)))
 
-    c_ups, q_ups = [], []
+    c_ups, q_ups, cap_flags = [], [], []
     for sub in df["SUB"]:
         ups = upstream_map.get(sub, [])
         tot_q, wmass = 0.0, 0.0
@@ -187,10 +203,17 @@ def compute_base_capacity(project: Project, topology: pd.DataFrame,
                 c = row["TN_conc"].values[0]
                 tot_q += q
                 wmass += q * c
-        c_ups.append(wmass / tot_q if tot_q > 0 else 0.0)
+        c_up = wmass / tot_q if tot_q > 0 else 0.0
+        cap = (project.reservoir_overrides or {}).get(int(sub), {}).get("inflow_conc_cap")
+        cap_applied = bool(cap is not None and c_up > float(cap))
+        if cap_applied:
+            c_up = float(cap)
+        c_ups.append(c_up)
         q_ups.append(tot_q)
+        cap_flags.append(cap_applied)
     df["c_up"] = c_ups
     df["Q_up"] = q_ups
+    df["Reservoir_Inflow_Cap_Applied"] = cap_flags
 
     a = pol.a_coef
     overrides = project.reservoir_overrides or {}
@@ -201,8 +224,7 @@ def compute_base_capacity(project: Project, topology: pd.DataFrame,
             ov = overrides[sub]
             K_i = ov.get("K", pol.K_decay)
             V_i = ov.get("V", r["Volume_m3"])
-            c_it = ov.get("C_it", r["C_it"])
-            df.loc[df["SUB"] == sub, "C_it"] = c_it
+            c_it = r["C_it"]
             df.loc[df["SUB"] == sub, "Volume_m3"] = V_i
         else:
             K_i, V_i, c_it = pol.K_decay, r["Volume_m3"], r["C_it"]
@@ -212,7 +234,8 @@ def compute_base_capacity(project: Project, topology: pd.DataFrame,
         wis.append(a * (term1 + term2))            # 不截断负容量（环境赤字）
     df["Wi_kg_d"] = wis
     df["Wi_tons_yr"] = df["Wi_kg_d"] * 365 / 1000.0
-    return df[["SUB", "C_it", "Q_up", "c_up", "Volume_m3", "Wi_kg_d", "Wi_tons_yr"]]
+    return df[["SUB", "C_it", "Q_up", "c_up", "Volume_m3", "Wi_kg_d", "Wi_tons_yr",
+               "Reservoir_Inflow_Cap_Applied"]]
 
 
 def compute_nps_flux(project: Project, subattr: pd.DataFrame,
@@ -274,7 +297,7 @@ def run_stage_a(project: Project, progress_cb: ProgressCB = None,
                             f"Parsing output.rch (sim years: {yr_msg}) ..."), 0.20)
     rch = swat_io.read_output_rch(project.txtinout, project.pollutant,
                                   years=year_filter, cio=cio)
-    rch_agg = swat_io.rch_annual_means(rch, conc_clip_upper=project.conc_clip_upper)
+    rch_agg = swat_io.rch_annual_means(rch, conc_clip_upper=None)
     riv_geom = swat_io.read_river_geometry(project.shapes_dir)
 
     _report(progress_cb, tr("关键因子筛选 (MI + Spearman) ...", "Key-factor screening (MI + Spearman) ..."), 0.35)
@@ -286,7 +309,7 @@ def run_stage_a(project: Project, progress_cb: ProgressCB = None,
         _report(progress_cb, tr(f"[警告] 因子筛选跳过：{e}", f"[warn] screening skipped: {e}"), 0.35)
 
     _report(progress_cb, tr("计算动态自适应标准 (CRS-ACM) ...", "Computing dynamic adaptive standard (CRS-ACM) ..."), 0.55)
-    dyn_std = compute_dynamic_standard(project, subattr, project.calibration)
+    dyn_std = compute_dynamic_standard(project, subattr, project.calibration, rch_agg)
 
     _report(progress_cb, tr("计算基础环境容量 Wi ...", "Computing base capacity Wi ..."), 0.72)
     base_cap = compute_base_capacity(project, topology, dyn_std, rch_agg, riv_geom)
@@ -320,7 +343,7 @@ def run_stage_b(project: Project, sa: StageAResult,
 
     # 按该年生效标定重算动态标准与基础容量（关键：新阈值真正用于标准/容量/风险）
     calib = project.calibration_for_year(year)
-    dyn_std = compute_dynamic_standard(project, sa.subattr, calib)
+    dyn_std = compute_dynamic_standard(project, sa.subattr, calib, sa.rch_agg)
     base_cap = compute_base_capacity(project, sa.topology, dyn_std, sa.rch_agg, sa.riv_geom)
 
     # 点源可用性：手动输入优先；否则严格匹配该年专属文件（不回退总表）
@@ -362,9 +385,12 @@ def run_stage_b(project: Project, sa: StageAResult,
     df["P_Transport_Rate"] = pt
     df["TN_nps_corrected_kgd"] = corr
 
-    df["W_actual_safe"] = np.where(df["W_actual_kg_d"] == 0, 1e-10, df["W_actual_kg_d"])
-    # 第一风险值 LP = 实际(校正后)非点源污染物通量 / 实际水环境容量  （专利 式7，本地自身风险）
-    df["LP"] = df["TN_nps_corrected_kgd"] / df["W_actual_safe"]
+    positive_capacity = df["W_actual_kg_d"] > 0
+    df["LP"] = np.nan
+    df.loc[positive_capacity, "LP"] = (
+        df.loc[positive_capacity, "TN_nps_corrected_kgd"]
+        / df.loc[positive_capacity, "W_actual_kg_d"]
+    )
 
     # 拓扑汇流路由（复刻 calc_risk_index 的 Kahn 排序）
     topo = sa.topology
@@ -399,18 +425,33 @@ def run_stage_b(project: Project, sa: StageAResult,
     df["Outflux_kgd"] = df["SUB"].map(outflux)
     # 第二风险值 TR = 上游流入污染物通量 Influx / 实际水环境容量  （专利 式8，上游传输风险）
     # 与第一风险(本地)互不重叠：分子分别为「本地面源」与「上游来量」，不再用累积 Outflux。
-    df["TR"] = df["Influx_kgd"] / df["W_actual_safe"]
-    df["RiskClass_LP"] = df["LP"].apply(classify_risk)
-    df["RiskClass_TR"] = df["TR"].apply(classify_risk)
+    df["TR"] = np.nan
+    df.loc[positive_capacity, "TR"] = (
+        df.loc[positive_capacity, "Influx_kgd"]
+        / df.loc[positive_capacity, "W_actual_kg_d"]
+    )
+    df["RiskClass_LP"] = 0
+    df["RiskClass_TR"] = 0
+    df.loc[positive_capacity, "RiskClass_LP"] = df.loc[positive_capacity, "LP"].apply(classify_risk)
+    df.loc[positive_capacity, "RiskClass_TR"] = df.loc[positive_capacity, "TR"].apply(classify_risk)
 
     # 热点识别：上游流入主导且第二风险高 -> 传输热点
     df["Import_Fraction"] = np.where(df["Outflux_kgd"] > 0,
                                      df["Influx_kgd"] / df["Outflux_kgd"], 0.0)
-    df["Node_Type"] = np.where(df["Import_Fraction"] >= 0.5, "Transport hotspot",
-                       np.where(df["TN_load_nps_kgd"] + df["point_load_kgd"] > 0,
-                                "Source-dominated", "Normal"))
-    df["IsTransmissionHotspot"] = (df["RiskClass_TR"] >= 4) & (df["Import_Fraction"] >= 0.5)
-    df["IsPriorityArea"] = (df["RiskClass_LP"] >= 4) | (df["RiskClass_TR"] >= 4)
+    deficit = ~positive_capacity
+    transmission_deficit = deficit & (df["Influx_kgd"] > df["TN_nps_corrected_kgd"])
+    local_deficit = deficit & ~transmission_deficit
+    df.loc[transmission_deficit, "RiskClass_TR"] = 5
+    df.loc[local_deficit, "RiskClass_LP"] = 5
+    df["Node_Type"] = np.where(
+        transmission_deficit, "Transmission-driven deficit",
+        np.where(local_deficit, "Local-source-driven deficit",
+                 np.where(df["Import_Fraction"] >= 0.5, "Transport hotspot",
+                          np.where(df["TN_load_nps_kgd"] + df["point_load_kgd"] > 0,
+                                   "Source-dominated", "Normal"))),
+    )
+    df["IsTransmissionHotspot"] = transmission_deficit | ((df["RiskClass_TR"] >= 4) & (df["Import_Fraction"] >= 0.5))
+    df["IsPriorityArea"] = deficit | (df["RiskClass_LP"] >= 4) | (df["RiskClass_TR"] >= 4)
 
     return _attach_geo(project, df, dyn_std, sa, year, cache, available=True)
 

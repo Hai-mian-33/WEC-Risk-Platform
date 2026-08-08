@@ -111,8 +111,10 @@ It reads results from a SWAT2012 project you have **already built and run**. In 
 
 ## 5. Calibration logic (thresholds, year scope, flow into the standard)
 
-**Key-factor screening** (shown automatically in tab ③): MI + Spearman on SWAT-simulated data, with p-values and
-bootstrap selection frequency — a driver analysis on a calibrated model.
+**Key-factor screening** in the final paper is a configured-model association analysis, not an
+independent causal discovery or an analysis on a calibrated model. The archived final-revision table
+uses 31 river sub-basins, BH-FDR, quartile-binned NMI and 5,000 bootstrap replicates; see
+`paper_revision/results/factor_screening_results.csv`.
 
 **Three threshold-calibration modes** (set each factor's threshold T used in the dynamic standard):
 1. **SWAT quantile (provisional)** — threshold = a quantile (median by default) of the factor across subbasins; no external data; labeled provisional.
@@ -215,23 +217,24 @@ area, projection, output years (`file.cio`), channel geometry (`riv1.dbf`), subb
    limits); if missing, all subbasins fall back to GB Class III; column names are auto-guessed.
 4. **Add point-source files** `PL_Point_<code>_<year>.csv` (columns `Subbasin, PL_point_<code>_g_s`, g/s);
    years without a point file show only the dynamic standard and base capacity (no actual capacity/risk).
-5. **Recalibrate the dynamic-standard factor thresholds** (key): the Miyun thresholds (Slope 19.153 /
-   Elev 284.546) are **Miyun-specific and must NOT be reused**. In tab ③, calibrate with the watershed's
-   monitoring data via ROC/Youden (or the SWAT-quantile fallback, marked provisional).
-6. **Configure region-specific corrections if needed**: if the watershed has a reservoir / extreme
-   concentrations, manually set `conc_clip_upper` (concentration cap) and `reservoir_overrides`
-   (reservoir subbasin K/V/target conc.) — see the boundary note below.
+5. **Re-estimate the dynamic-benchmark factor thresholds** (key): the configured Miyun estimates
+   (Slope 19.153% / Elevation 330.605 m) are **Miyun-specific and must NOT be reused**. In tab ③,
+   estimate them against a prespecified binary outcome (or use the SWAT-quantile fallback, marked provisional).
+6. **Configure region-specific corrections if needed**: if the watershed has a reservoir, manually set
+   `reservoir_overrides` (reservoir sub-basin K/V and inherited-concentration cap) and protection nodes —
+   see the boundary note below. Basin-wide concentration clipping is deprecated.
 7. **Save project** → a `.wecproj.json`; reopen later via "Open project".
 
 ### ⚠️ Honest boundary note (Miyun-specific params never leak to other watersheds)
 `detect()` contains a branch that applies Miyun-specific parameters **only when** the project name
-contains "miyun" or the scenario is `Miyun_Calib_01`: concentration cap 7.0 mg/L, the SUB32 reservoir
-special-case (K=0.025 / V=2e9 / C=1.0), and the "Miyun Reservoir" name (see `detect()` in
+contains "miyun" or the scenario is `Miyun_Calib_01`: the SUB32 reservoir
+special-case (K=0.025 d−1 / V=2e9 m3 / inherited-concentration cap=7.0 mg/L), the strict-benchmark
+protection gate, and the "Miyun Reservoir" name (see `detect()` in
 `wec_platform/project.py`).
 - **Other watersheds do NOT trigger this branch** and get **generic defaults**: no concentration cap,
   no reservoir special-case, factor thresholds pending calibration — so **Miyun's parameters never
   leak into your watershed**.
-- **Trade-off**: a new watershed's reservoir special-case and concentration cap must be **configured
+- **Trade-off**: a new watershed's reservoir special-case and node-specific cap must be **configured
   manually** (the tool does not auto-detect reservoir bodies). If your watershed has no large
   reservoir / extreme concentrations, keep the defaults.
 
@@ -258,22 +261,24 @@ metadata is in [`CITATION.cff`](CITATION.cff) (GitHub shows a "Cite this reposit
   year    = {2026}, version = {1.0},
   url     = {https://github.com/Hai-mian-33/WEC-Risk-Platform}, license = {MIT}
 }
-% Peer-reviewed paper in preparation — switch to @article (add journal/volume/doi) on acceptance:
-@unpublished{wecrisk_paper_2026,
-  author = {Sun, Haiming}, title = {<Paper title>}, year = {2026}, note = {Manuscript in preparation}
+% Accepted conference paper; add proceedings pages and DOI when assigned:
+@inproceedings{wecrisk_paper_2026,
+  author = {Sun, Haiming},
+  title = {A Capacity--Risk--Standard Adaptive Coupling Model (CRS-ACM) for Spatially Differentiated Watershed Water-Quality Management: A Case Study of Total Nitrogen in the Miyun Reservoir Basin},
+  booktitle = {Proceedings of WREM 2026}, year = {2026}, note = {Accepted; publication details pending}
 }
 ```
 
 ## 14. License & Patent
 
-- **Code:** released under the **MIT License** (see `LICENSE`) — free to use, modify and redistribute with attribution.
-- **Patent:** the *method* implemented here (dynamic adaptive standard + base/actual water
-  environmental capacity + two-class risk LP/TR) is covered by a separate patent / application held
-  by the author (see `NOTICE`). **MIT covers the code only and grants no patent license**; using the
-  patented method may require separate authorization from the patent holder.
+- **Code:** released under the **MIT License** (see `LICENSE`). Its copyright terms permit use,
+  modification, distribution, sublicensing and sale of copies, subject to the license notice.
+- **Pending application:** a Chinese invention patent application related to CRS-ACM (Application
+  No. 202610879952.8) was filed by Tsinghua University on 17 June 2026. The application is pending
+  and is not a granted patent. The MIT text does not provide an express patent license. This notice
+  does not decide whether a particular use would practice any eventual claim; seek legal advice if relevant.
 - **Binary redistribution:** the bundled `.exe` includes **PyQt5 (GPL)**. Distributing the source
   under MIT is unaffected, but redistributing the built binary must comply with PyQt5's GPL terms
   (or use a commercial Qt license).
 
-> Author, Chinese Patent Application No. (202610879952.8) and repository URL are filled in. The paper citation
-> (title / journal / DOI) will be added to `CITATION.cff` and the BibTeX above once the manuscript is accepted.
+> The manuscript has been accepted by WREM 2026. Proceedings details and DOI will be added when assigned.

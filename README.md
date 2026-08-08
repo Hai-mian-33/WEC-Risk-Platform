@@ -8,10 +8,11 @@
 
 > An integrated desktop tool that turns a built **SWAT2012** project into water environmental
 > capacity & two-class pollution-risk maps — **bilingual (中文 / English)**, interactive, and
-> portable to any watershed. Released as the reference implementation of the associated paper.
+> transferable in principle, subject to basin-specific parameterization, calibration, and validation.
+> Released as the research interface accompanying the associated paper.
 >
 > 一款把已建 **SWAT2012** 工程一键转化为水环境容量与两类污染风险地图的桌面程序——中英双语、
-> 交互式、可迁移到任意流域；作为相关论文的具体实现一并发布。
+> 交互式；跨流域使用必须重新参数化、率定与验证，不能直接套用密云参数。
 
 **Pipeline / 集成流程:**
 SWAT outputs → key-factor screening → dynamic adaptive standard (CRS-ACM) → base & actual water
@@ -38,11 +39,14 @@ environmental capacity → two-class risk (local **LP** / upstream-transport **T
   Esri Satellite; live language switch (中文 ⇄ English).
 - **Per-year analysis** with user-selectable **spin-up years (NYSKIP)**; actual capacity & risk are
   produced **only for years that have point-source data**.
-- **Multi-watershed portable** — auto-detect any SWAT2012 project (zero hardcoding);
+- **Multi-watershed workflow** — auto-detects common SWAT2012 layouts; transfer still requires
+  basin-specific parameterization, threshold estimation, and validation;
   **pollutant interfaces for TN / TP / COD**.
 - **Hybrid factor calibration** (monitoring ROC·Youden / SWAT quantile / manual) with provenance,
   and AUC validation against an independent biological response.
-- **Reproducible** — a headless `--cli --reconcile` mode reproduces the published numbers to ~1e-12.
+- **Auditable research release** — the final-revision derived tables are under
+  [`paper_revision/results/`](paper_revision/results/), with provenance and redistribution limits in
+  [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md). The public example is configured, not calibrated.
 
 ## 🖼 Screenshots / 界面预览
 
@@ -97,14 +101,14 @@ build_exe.bat                        REM -> dist\WEC_Platform\WEC_Platform.exe (
 
 ## 🗺️ Example data / 示例数据
 
-`data/Miyun/` holds the **analysis-ready outputs** of a calibrated SWAT2012 model of the Miyun
-Reservoir basin (Beijing, 32 subbasins) — sufficient to run the full screening → standard →
-capacity → risk → visualization workflow and to reproduce the paper's numbers. The **full ~3 GB
-SWAT model (weather, HRU inputs) is intentionally not included**; to re-run SWAT itself, point the
-tool at your own complete SWAT project.
+`data/Miyun/` holds **analysis-ready configured outputs** from a SWAT2012 model of the Miyun
+Reservoir basin (31 river sub-basins plus reservoir node 32). No compatible observed flow-and-TN
+series or SWAT-CUP archive was found, so the example must not be described as calibrated. It is
+sufficient to demonstrate the interface; the full weather/HRU project and licensed third-party
+inputs are intentionally not included. See [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md).
 
-示例 `data/Miyun/` 仅含已标定 SWAT 模型的**分析所需输出**（约 7 MB），足以跑通全流程并复现论文
-数值；完整约 3 GB 的 SWAT 模型（天气/HRU 输入）未随仓库分发。
+示例 `data/Miyun/` 仅含 SWAT **已配置、未完成可靠联合率定**的分析输出。它用于演示界面和相对诊断，
+不能作为监管或工程设计的绝对依据；完整天气/HRU工程与受许可约束的第三方原始数据不随仓库分发。
 
 ## 🔬 SWAT prerequisite / SWAT 前置
 
@@ -118,17 +122,15 @@ subbasin/river shapefiles. Minimum file set and data formats are in the manuals.
 
 | Step | Formula (faithful to the validated scripts) |
 |---|---|
-| Dynamic adaptive standard (CRS-ACM) | `C_dynamic = C_strict + (C_loose − C_strict)·AdjIndex`, `C_loose = min(C_strict+δ, cap)` |
+| Spatially adaptive benchmark | `alpha = sum(w_f*s_f)/sum(w_f)`; `C_dynamic = C_strict + alpha*(C_loose-C_strict)` unless an already-compliant/protected-node gate retains `C_strict` |
 | Base capacity | `Wi = a·[86.4·Q·(C_it − C_up) + 1e-3·K·V·C_it]` (negative capacity retained; mass-weighted conc.) |
-| NPS transport rate | `R = (IN_river + NPS + point − OUT)/(IN_river + NPS + point)` (per-year point source) |
+| Retention | `R_tilde = (IN_river + NPS + point − OUT)/(IN_river + NPS + point)`; `R = min(1,max(0,R_tilde))` |
 | Actual capacity | `W_actual = Wi − that-year point source` |
-| Risk-1 (local) | `LP = corrected NPS / W_actual` |
-| Risk-2 (upstream transport) | `TR = upstream inflow Influx / W_actual` |
+| Risk-1 / Risk-2 | `LP = corrected NPS/W_actual`, `TR = upstream inflow/W_actual`, both only when `W_actual > 0`; deficit nodes are classified directly |
 
-- **Key-factor screening** uses SWAT-simulated data (MI + Spearman, with p-values & bootstrap) — a
-  driver analysis on a calibrated model. **Threshold calibration** prefers independent biological
-  monitoring (ROC / Youden) to keep the validation non-circular; a SWAT-quantile fallback is marked
-  *provisional*. See the manuals for the full rationale and caveats.
+- The paper-revision factor screen uses 31 river sub-basins, BH-FDR, quartile-binned NMI, and 5,000
+  bootstrap replicates. Terrain thresholds are modest-discrimination, basin-specific operational
+  estimates from the configured model; they are not strong predictors or statutory replacements.
 
 ## 📚 Citation / 引用
 
@@ -144,27 +146,32 @@ If you use this software, please cite **both** the software and the paper. Citat
   url     = {https://github.com/Hai-mian-33/WEC-Risk-Platform},
   license = {MIT}
 }
-% Peer-reviewed paper in preparation — switch to @article (add journal/volume/doi) on acceptance:
-@unpublished{wecrisk_paper_2026,
+% Accepted conference paper; add proceedings pages and DOI when assigned:
+@inproceedings{wecrisk_paper_2026,
   author  = {Sun, Haiming},
-  title   = {<Paper title>},
+  title   = {A Capacity--Risk--Standard Adaptive Coupling Model (CRS-ACM) for Spatially Differentiated Watershed Water-Quality Management: A Case Study of Total Nitrogen in the Miyun Reservoir Basin},
+  booktitle = {Proceedings of WREM 2026},
   year    = {2026},
-  note    = {Manuscript in preparation}
+  note    = {Accepted; publication details pending}
 }
 ```
 
 ## ⚖️ License & Patent / 许可证与专利
 
 - **Software code: [MIT License](LICENSE).** Free to use, modify and redistribute with attribution.
-- **Patent:** the underlying *method* is covered by a separate patent / application held by the
-  author (see [`NOTICE`](NOTICE)). The MIT license covers the **code only** and grants **no patent
-  license**. 软件代码采用 MIT；本方法另有专利，MIT 不授予专利许可，详见 `NOTICE`。
+- **Pending application:** a Chinese invention patent application related to CRS-ACM
+  (Application No. 202610879952.8) was filed by Tsinghua University on 17 June 2026. It is pending
+  and is not a granted patent. The MIT License permits use, modification, distribution,
+  sublicensing, and sale of copies of the software under its copyright terms; its text does not
+  provide an express patent license. See [`NOTICE`](NOTICE). This repository does not determine
+  whether a particular implementation practices any eventual patent claim; obtain legal advice if
+  that question matters to your use.
 - **Binary redistribution note:** the bundled `.exe` includes **PyQt5 (GPL)**. Distributing the
   source under MIT is unaffected, but redistributing the built binary must comply with PyQt5's GPL
   terms (or use a commercial Qt license). 见 `NOTICE`。
 
-> ℹ️ Author, Chinese Patent Application No. (202610879952.8) and repository URL are filled in. The **paper citation**
-> (title / journal / DOI) will be added to `CITATION.cff` and the BibTeX above once the manuscript is accepted.
+> ℹ️ The paper has been accepted by WREM 2026. Proceedings volume, page range, and DOI will be added
+> to `CITATION.cff` when assigned.
 
 ## 📖 Manuals / 详细手册
 

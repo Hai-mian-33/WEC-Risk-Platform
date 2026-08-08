@@ -1,0 +1,6 @@
+﻿static_threshold_mg_l,mean_ba_difference_dynamic_minus_static,ci_low,ci_high,bootstrap_replicates,block_length_months
+0.2,0.0,0.0,0.0,5000,3
+0.5,0.0,0.0,0.0,5000,3
+1.0,0.0,0.0,0.0,5000,3
+1.5,0.0,0.0,0.0,5000,3
+2.0,0.03863567528095661,0.0,0.125,5000,3

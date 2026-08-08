@@ -184,12 +184,12 @@ python main.py --cli --project examples/miyun_project.json --year 2022 --reconci
 2. **"自动探测并新建工程"**：在「① 工程与数据」页选该流域工程根目录。
 3. **放入该流域的标准表**（可选）`subbasin_water_quality_standards.csv`（含各子流域标准限值）；缺省则全流域退回 GB Ⅲ类，列名会自动猜测。
 4. **放入点源文件** `PL_Point_<污染物代码>_<年份>.csv`（列 `Subbasin, PL_point_<code>_g_s`，单位 g/s）；无该年点源则该年只出动态标准与基础容量（不出实际容量/风险）。
-5. **重新标定动态标准的因子阈值**（关键）：密云的阈值（坡度 19.153 / 高程 284.546）是**密云专属、不可照搬**。到「③ 标定与验证」用该流域监测数据走 ROC/Youden 标定（无监测则用 SWAT 分位数，标 provisional）。
-6. **按需配置研究区相关修正**：若该流域有水库/极值浓度问题，手动设 `conc_clip_upper`（浓度上限截断）与 `reservoir_overrides`（水库子流域的 K/V/目标浓度）——见下方"边界说明"。
+5. **重新估计动态基准的因子阈值**（关键）：密云的配置型估计（坡度 19.153% / 高程 330.605 m）是**密云专属、不可照搬**。到「③ 标定与验证」针对预先规定的二元结局估计阈值（无独立观测时可用 SWAT 分位数退回方案，并标 provisional）。
+6. **按需配置研究区相关修正**：若该流域有水库，手动设 `reservoir_overrides`（水库子流域的 K/V/继承浓度上限）与保护节点——见下方“边界说明”。全流域统一浓度截断已弃用。
 7. **"保存工程"** 生成 `.wecproj.json`，下次"打开工程"即可。
 
 ### ⚠️ 诚实说明的边界（密云专属参数不会泄漏到其它流域）
-`detect()` 中有一段判断——**仅当**工程名含 "miyun" 或情景为 `Miyun_Calib_01` 时，才套用密云专属参数：浓度上限截断 7.0 mg/L、SUB32 水库特例(K=0.025/V=2e9/C=1.0)、以及"密云水库"命名（见 `wec_platform/project.py` 的 detect）。
+`detect()` 中有一段判断——**仅当**工程名含 "miyun" 或情景为 `Miyun_Calib_01` 时，才套用密云专属参数：SUB32 水库特例（K=0.025 d⁻¹、V=2×10⁹ m³、继承浓度上限 7.0 mg/L）、严格基准保护门控以及“密云水库”命名（见 `wec_platform/project.py` 的 `detect()`）。
 - **其它流域不会触发该分支**，拿到的是**通用默认**：无浓度截断、无水库特例、因子阈值待标定——因此**绝不会把密云的参数泄漏到你的流域**。
 - **代价**：新流域的水库特例与浓度截断**需你手动配置**（程序不自动识别水库本体）。若你的流域没有大型水库/极端浓度，保持默认即可。
 
@@ -215,16 +215,18 @@ python main.py --cli --project examples/miyun_project.json --year 2022 --reconci
   year    = {2026}, version = {1.0},
   url     = {https://github.com/Hai-mian-33/WEC-Risk-Platform}, license = {MIT}
 }
-% 论文撰写中，录用后改为 @article 并补 journal/volume/doi：
-@unpublished{wecrisk_paper_2026,
-  author = {Sun, Haiming}, title = {<论文标题>}, year = {2026}, note = {Manuscript in preparation}
+% 会议论文已录用，出版后补页码和 DOI：
+@inproceedings{wecrisk_paper_2026,
+  author = {Sun, Haiming},
+  title = {A Capacity--Risk--Standard Adaptive Coupling Model (CRS-ACM) for Spatially Differentiated Watershed Water-Quality Management: A Case Study of Total Nitrogen in the Miyun Reservoir Basin},
+  booktitle = {Proceedings of WREM 2026}, year = {2026}, note = {Accepted; publication details pending}
 }
 ```
 
 ## 十四、许可证与专利
 
 - **代码**：采用 **MIT 许可证**（见 `LICENSE`），可自由使用/修改/再分发，保留版权声明即可。
-- **专利**：本软件实现的**方法**（动态自适应标准 + 基础/实际水环境容量 + 两类风险 LP/TR）已由作者另行申请/持有专利（详见 `NOTICE`）。**MIT 仅覆盖代码，不授予对该专利方法的任何许可**；使用该专利方法可能需另行获得专利权人授权。
+- **待审专利申请**：清华大学于 2026 年 6 月 17 日提交了与 CRS-ACM 方法相关的中国发明专利申请（申请号 202610879952.8）。该申请尚未获得授权，不应表述为已获专利。MIT 文本授予代码版权层面的许可，但不构成明示的专利许可（详见 `NOTICE`）。
 - **二进制分发提示**：打包后的 `.exe` 内含 **PyQt5（GPL 许可）**。以 MIT 分发**源码**不受影响，但**再分发打包的二进制**需遵守 PyQt5 的 GPL 条款（或购买 Qt 商业许可）。
 
-> 作者、专利申请号（202610879952.8）、仓库地址均已填写。论文引用（标题/期刊/DOI）将在稿件录用后补入 `CITATION.cff` 与上方 BibTeX。
+> 专利申请号（202610879952.8）和仓库地址均已填写。论文已被 WREM 2026 录用，出版页码和 DOI 将在正式分配后补入。

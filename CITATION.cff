@@ -2,7 +2,7 @@
 # Replace every [PLACEHOLDER] before publishing.
 cff-version: 1.2.0
 title: "WEC-Risk Platform: an integrated tool for SWAT-based water environmental capacity and two-class pollution-risk assessment"
-message: "If you use this software, please cite it using the metadata below. A peer-reviewed paper describing the method is in preparation and will be added here on acceptance."
+message: "If you use this software, please cite it using the metadata below. The accompanying paper has been accepted by WREM 2026; proceedings details will be added when assigned."
 type: software
 authors:
   - family-names: "Sun"
@@ -21,17 +21,17 @@ keywords:
   - dynamic adaptive standard
   - total nitrogen
   - GIS
-# The peer-reviewed paper this software implements is in preparation.
-# Uncomment and fill in on acceptance — GitHub's "Cite this repository" will
-# then prefer the paper citation over the software entry above.
+# The accompanying paper has been accepted by WREM 2026. Add the proceedings
+# volume, pages and DOI when assigned.
 # preferred-citation:
-#   type: article
-#   title: "<Paper title>"
+#   type: conference-paper
+#   title: "A Capacity–Risk–Standard Adaptive Coupling Model (CRS-ACM) for Spatially Differentiated Watershed Water-Quality Management: A Case Study of Total Nitrogen in the Miyun Reservoir Basin"
 #   authors:
 #     - family-names: "Sun"
 #       given-names: "Haiming"
 #   year: 2026
-#   journal: "<Journal name>"
+#   collection-title: "Proceedings of WREM 2026"
 #   # volume: "<vol>"
-#   # issue: "<issue>"
+#   # start: "<first page>"
+#   # end: "<last page>"
 #   # doi: "<10.xxxx/xxxxx>"
