@@ -64,7 +64,7 @@ It reads results from a SWAT2012 project you have **already built and run**. In 
 | SWAT project | pick the root folder | **auto-detected**: #subbasins, topology, area, projection, output years, channel geometry | QSWAT layout |
 | **Point source** | project root **or** scenario folder | **auto-detected by filename**; or typed manually in tab ④ | see below |
 | Standards table (optional) | root or scenario folder | auto-detected | see below |
-| Monitoring data (calibration/validation) | anywhere | chosen manually in tab ③ | see below |
+| Monitoring data (exploratory external comparison) | anywhere | chosen manually in tab ③ | see below |
 
 **Point-source file naming & format (important):**
 - File name: `PL_Point_<pollutant>_<year>.csv`, e.g. `PL_Point_TN_2022.csv`.
@@ -116,16 +116,26 @@ independent causal discovery or an analysis on a calibrated model. The archived 
 uses 31 river sub-basins, BH-FDR, quartile-binned NMI and 5,000 bootstrap replicates; see
 `paper_revision/results/factor_screening_results.csv`.
 
-**Three threshold-calibration modes** (set each factor's threshold T used in the dynamic standard):
-1. **SWAT quantile (provisional)** — threshold = a quantile (median by default) of the factor across subbasins; no external data; labeled provisional.
-2. **Monitoring ROC/Youden** — needs a monitoring CSV; Youden's J finds the optimal cut (most rigorous).
-3. **Manual** — type thresholds directly in the factor table.
+The former 284.55 m elevation cut is reproducible only when the mixed reservoir node 32 is included
+as a river screening unit. Excluding that protected reservoir node gives the final 330.60 m estimate;
+strict removal of summary rows causes only a small AUC change. See
+`paper_revision/THRESHOLD_CHANGE_AUDIT.md`.
 
-**Monitoring data format** (for ROC calibration & AUC validation):
-- CSV with columns: `Month` (time order), `TN` (monthly concentration of the pollutant), `Algae` (biological response, e.g. algal cell density).
-- Validation: TN is lag-aligned by 1 month; truth = `Algae > threshold`; the dynamic-system AUC and static
-  baselines are computed — preserving the original "break the self-referential loop" rationale (the standard
-  rule and the biological validator are independent).
+**Threshold configuration in the GUI:**
+1. The Miyun example loads the archived configured-model ROC/Youden estimates with their provenance.
+2. **SWAT quantile (provisional)** is a generic fallback for a new basin and is explicitly labeled provisional.
+3. **Manual** accepts a threshold supported by a basin-specific analysis performed outside the GUI.
+
+The GUI deliberately does not use a reservoir time series to estimate a spatial terrain threshold.
+The code-level ROC helper requires prespecified, per-sub-basin binary labels and the correct score direction.
+
+**Monitoring data format for the exploratory external ecological comparison:**
+- CSV columns: `Year`, `Month`, `TN`, and `Algae`; a precomputed `TN_LAG_MG_L` may be supplied instead.
+- TN is lag-aligned by one month within year. The fixed pre-algae dynamic benchmark is compared with
+  the five static class limits using sensitivity, specificity, balanced accuracy, precision, and MCC.
+  Confidence intervals use 5,000 year-stratified, three-month circular moving-block replicates.
+- The program does not search the algae labels for a favorable threshold. The comparison is
+  exploratory and must not be described as proof of ecological superiority.
 
 **Apply scope (year-specific vs global) — answering "does calibrating with 2022 affect other years?"**
 - Scope = **All years**: written to the global calibration; every year's dynamic standard updates.
@@ -178,7 +188,7 @@ The map, detail panel and charts refresh immediately — **no extra manual step 
 
 1. **① Project & Data** — pick SWAT root → "Auto-detect and create project"; register DEM/CLCD/HWSD/weather paths (record only); view summary & validation. Or "Load Miyun example".
 2. **② Run & Analyze** — tick the simulation years for the multi-year average → "Run SWAT" (auto-chains Stage A if exe present) or "Run analysis pipeline (Stage A)".
-3. **③ Calibrate & Validate** — view screening; pick mode + apply-scope to calibrate thresholds; import monitoring data for AUC.
+3. **③ Calibrate & Validate** — view screening; configure threshold provenance/scope; import optional monitoring data for the fixed-threshold exploratory external comparison.
 4. **④ Interactive Map & Point Source** — edit point source (g/s) → "Apply and recompute"; switch layer/year; **click a subbasin** to see standard/capacity/both risks; hotspots & topology arrows overlaid.
 5. **⑤ Overview Charts** — actual-capacity distribution, two-risk class distribution, dynamic vs strict standard, key-factor importance.
 

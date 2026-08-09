@@ -13,5 +13,11 @@ Included result groups:
 - S1-S9 configuration/output diagnostics;
 - aggregated exploratory ecological-validation metrics.
 
-Raw ecological pairs, original point-source rasters, meteorological forcing, and third-party monitoring files are intentionally excluded. See [`../DATA_PROVENANCE.md`](../DATA_PROVENANCE.md).
+Additional camera-ready audit tables document NMI bootstrap behavior,
+parameter evidence status, reservoir-cap activation, ecological-source
+provenance, and scenario-file hashes. See
+[`THRESHOLD_CHANGE_AUDIT.md`](THRESHOLD_CHANGE_AUDIT.md) for the controlled
+old/new threshold reproduction and [`IMPLEMENTATION.md`](IMPLEMENTATION.md)
+for the mapping from the paper workflow to the interactive code.
 
+Raw ecological pairs, original point-source rasters, meteorological forcing, and third-party monitoring files are intentionally excluded. See [`../DATA_PROVENANCE.md`](../DATA_PROVENANCE.md).

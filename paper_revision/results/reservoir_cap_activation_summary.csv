@@ -1,0 +1,4 @@
+﻿reservoir_node,immediate_inflow_nodes,cap_mg_l,months,valid_flow_months,undefined_zero_flow_months,months_cap_active,percent_all_months_cap_active,percent_valid_flow_months_cap_active,maximum_monthly_uncapped_mg_l,period_volume_weighted_uncapped_mg_l,period_volume_weighted_capped_mg_l,capacity_code_long_term_uncapped_mg_l,capacity_code_long_term_capped_mg_l
+32,11;13;15;22;24,5.0,132,108,24,35,26.515151515151516,32.407407407407405,76.42215037616066,10.425744418528033,2.9787040570459555,10.440346576115601,5.0
+32,11;13;15;22;24,7.0,132,108,24,30,22.727272727272727,27.77777777777778,76.42215037616066,10.425744418528033,3.842517134864366,10.440346576115601,7.0
+32,11;13;15;22;24,9.0,132,108,24,27,20.454545454545457,25.0,76.42215037616066,10.425744418528033,4.609115652502874,10.440346576115601,9.0

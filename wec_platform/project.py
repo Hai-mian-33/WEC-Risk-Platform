@@ -167,6 +167,20 @@ class Project:
                     return p
         return None
 
+    def data_input_path(self, key: str) -> Optional[str]:
+        """Resolve an optional registered data input.
+
+        Relative paths are interpreted from the project root so that the
+        public example remains portable after ``git clone``.  Absolute paths
+        are retained for private/local projects.
+        """
+        value = self.data_inputs.get(key)
+        if not value:
+            return None
+        if os.path.isabs(value):
+            return os.path.normpath(value)
+        return os.path.normpath(os.path.join(self.root_dir, value))
+
     def has_point_source(self, year: Optional[int]) -> bool:
         """该年是否存在专属点源文件（严格，不回退总表）。"""
         return self.point_source_path(year, allow_base=False) is not None

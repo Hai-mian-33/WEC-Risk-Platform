@@ -42,8 +42,9 @@ environmental capacity → two-class risk (local **LP** / upstream-transport **T
 - **Multi-watershed workflow** — auto-detects common SWAT2012 layouts; transfer still requires
   basin-specific parameterization, threshold estimation, and validation;
   **pollutant interfaces for TN / TP / COD**.
-- **Hybrid factor calibration** (monitoring ROC·Youden / SWAT quantile / manual) with provenance,
-  and AUC validation against an independent biological response.
+- **Auditable factor and threshold workflow** — strict monthly parsing, a 31-river-sub-basin
+  Spearman/BH-FDR/NMI screen, configured ROC·Youden estimates, and explicit provenance. The
+  biological module is a fixed-threshold exploratory external comparison, not threshold tuning.
 - **Auditable research release** — the final-revision derived tables are under
   [`paper_revision/results/`](paper_revision/results/), with provenance and redistribution limits in
   [`DATA_PROVENANCE.md`](DATA_PROVENANCE.md). The public example is configured, not calibrated.
@@ -90,12 +91,13 @@ build_exe.bat                        REM -> dist\WEC_Platform\WEC_Platform.exe (
 │   └── ui/  (main_window, panels, charts, state, bridge, style)
 ├── examples/
 │   ├── miyun_project.json        # portable example project (relative paths)
-│   └── monitoring_template.csv   # calibration/validation data format (Month, TN, Algae)
+│   └── monitoring_template.csv   # optional external-comparison format (Year, Month, TN, Algae)
 ├── docs/                         # put screenshots / extra docs here
 └── data/Miyun/                   # bundled example (Miyun Reservoir basin, analysis-ready subset)
     ├── Watershed/Shapes/{subs1,riv1}.*
     ├── Scenarios/Miyun_Calib_01/TxtInOut/{file.cio,fig.fig,output.rch,output.sub}
     ├── Scenarios/Miyun_Calib_01/subbasin_water_quality_standards.csv  (+ extract_*.csv)
+    ├── factor_screening_frame_final.csv   # derived 31-row canonical screening frame
     └── PL_Point_TN_{2020,2021,2022}.csv
 ```
 
@@ -131,6 +133,10 @@ subbasin/river shapefiles. Minimum file set and data formats are in the manuals.
 - The paper-revision factor screen uses 31 river sub-basins, BH-FDR, quartile-binned NMI, and 5,000
   bootstrap replicates. Terrain thresholds are modest-discrimination, basin-specific operational
   estimates from the configured model; they are not strong predictors or statutory replacements.
+- The elevation threshold change from 284.55 to 330.60 m is traced to removal of the non-comparable
+  reservoir node from the river ROC population. See the
+  [controlled threshold audit](paper_revision/THRESHOLD_CHANGE_AUDIT.md) and the
+  [implementation map](paper_revision/IMPLEMENTATION.md).
 
 ## 📚 Citation / 引用
 

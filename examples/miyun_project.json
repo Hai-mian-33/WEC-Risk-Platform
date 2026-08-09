@@ -109,7 +109,9 @@
   "protection_nodes": [
     32
   ],
-  "data_inputs": {},
+  "data_inputs": {
+    "factor_screening_frame": "factor_screening_frame_final.csv"
+  },
   "std_sub_col": "子流域ID(SUB)",
   "std_limit_col": null
 }

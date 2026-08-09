@@ -7,6 +7,7 @@ This repository is a research-software release, not a complete calibrated SWAT p
 - `data/Miyun/Watershed/Shapes/`: case-study sub-basin and river geometry used by the interactive demonstration.
 - `data/Miyun/Scenarios/Miyun_Calib_01/TxtInOut/`: selected **configured** SWAT2012 output files needed by the interface. The scenario name is historical; it is not evidence of a defensible flow-and-TN calibration archive.
 - `data/Miyun/PL_Point_TN_2020.csv` to `PL_Point_TN_2022.csv`: sub-basin TN fluxes recomputed from the original urban and industrial NH3-N rasters.
+- `data/Miyun/factor_screening_frame_final.csv`: a 31-row derived screening frame used to reproduce the final factor table without redistributing restricted forcing inputs.
 - `paper_revision/results/`: selected non-restricted derived tables used in the WREM 2026 final revision.
 
 The public case is intended to demonstrate parsing, visualization, and scenario-comparative diagnostics. Absolute loads, capacity values, and BMP effects are model-derived estimates and must not be treated as calibrated allocation permits or engineering design values.
@@ -35,6 +36,12 @@ The former files affected by a tonnes/year-versus-kg/year factor of 1,000 are no
 
 This repository does not redistribute raw CMADS, ERA5-Land, the Yuan and Ma gridded discharge source, the original NH3-N rasters, or third-party ecological monitoring records. Obtain those inputs from their providers and follow their licenses and citation requirements. The `paper_revision/results/` directory contains derived summaries only; it intentionally excludes raw validation pairs and machine-local manifests.
 
+The 33 ecological pairs were approximately digitized from figures in the cited
+Li et al. and Zheng publications. Digitization error was not independently
+quantified. Because those pairs are derived from third-party figures, this
+repository publishes only aggregated metrics and a provenance audit, not the
+row-level pairs.
+
 ## Temporal parsing
 
 The final revision uses January 2015 through December 2025: exactly 132 monthly records per reach, sub-basin, and HRU. Annual summaries and terminal long-term-average rows are excluded. Historical `extract_rch.csv` and `extract_sub.csv` files remain only for backward compatibility with the v1.0 interface and must not be used as the final-paper monthly analysis input.
@@ -45,4 +52,3 @@ The final revision uses January 2015 through December 2025: exactly 132 monthly 
 - A forcing-source transition from CMADS to ERA5-Land may introduce a structural discontinuity.
 - The ecological reanalysis contains only 33 digitized monthly pairs and is exploratory.
 - Basin-specific thresholds, protection nodes, decay parameters, and point-source assumptions must be recalibrated for any transfer.
-

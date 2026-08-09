@@ -239,7 +239,9 @@ def compute_base_capacity(project: Project, topology: pd.DataFrame,
 
 
 def compute_nps_flux(project: Project, subattr: pd.DataFrame,
-                     rch: pd.DataFrame) -> pd.DataFrame:
+                     rch: pd.DataFrame,
+                     analysis_years: Optional[List[int]] = None,
+                     cio: Optional[dict] = None) -> pd.DataFrame:
     """面源产污与河道进出通量的「年基准」量（日均 kg/d）。
 
     返回 [SUB, TN_load_nps_kgd, TN_river_IN_kgd, TN_river_OUT_kgd]。
@@ -250,17 +252,24 @@ def compute_nps_flux(project: Project, subattr: pd.DataFrame,
     flux = swat_io.rch_retention(rch)
 
     sub_ids = sorted(subattr["SUB"].astype(int).tolist())
-    loads, months = swat_io.read_output_sub(project.txtinout, pol, sub_ids)
+    loads, months = swat_io.read_output_sub(
+        project.txtinout, pol, sub_ids, years=analysis_years, cio=cio,
+    )
     months = months or 1
+    if "DAYS" in rch.columns and not rch.empty:
+        first_sub = int(rch["SUB"].min())
+        period_days = float(rch.loc[rch["SUB"] == first_sub, "DAYS"].sum())
+    else:
+        period_days = months * 30.4166666667
     area_map = dict(zip(subattr["SUB"], subattr["Area_ha"]))
 
     rows = []
     for s in sub_ids:
         total_kg = loads.get(s, 0.0) * float(area_map.get(s, 0.0) or 0.0)
-        rows.append({"SUB": s, "TN_load_nps_kgd": total_kg / (months * 30.416)})
+        rows.append({"SUB": s, "TN_load_nps_kgd": total_kg / period_days})
     df = pd.DataFrame(rows).merge(flux, on="SUB", how="left").fillna(0.0)
-    df["TN_river_IN_kgd"] = df["TN_IN"] / (months * 30.416)
-    df["TN_river_OUT_kgd"] = df["TN_OUT"] / (months * 30.416)
+    df["TN_river_IN_kgd"] = df["TN_IN"] / period_days
+    df["TN_river_OUT_kgd"] = df["TN_OUT"] / period_days
     return df[["SUB", "TN_load_nps_kgd", "TN_river_IN_kgd", "TN_river_OUT_kgd"]]
 
 
@@ -300,10 +309,17 @@ def run_stage_a(project: Project, progress_cb: ProgressCB = None,
     rch_agg = swat_io.rch_annual_means(rch, conc_clip_upper=None)
     riv_geom = swat_io.read_river_geometry(project.shapes_dir)
 
-    _report(progress_cb, tr("关键因子筛选 (MI + Spearman) ...", "Key-factor screening (MI + Spearman) ..."), 0.35)
+    _report(progress_cb, tr("关键因子筛选 (Spearman + FDR + NMI) ...",
+                            "Key-factor screening (Spearman + FDR + NMI) ..."), 0.35)
     try:
         screening = screen_factors(project.scenario_dir, project.txtinout,
-                                   project.pollutant, subattr)
+                                   project.pollutant, subattr,
+                                   n_boot=5000,
+                                   random_state=20260809,
+                                   canonical_frame=project.data_input_path(
+                                       "factor_screening_frame"),
+                                   years=sel_years,
+                                   exclude_nodes=project.protection_nodes)
     except Exception as e:  # 筛选失败不应阻断主链路
         screening = pd.DataFrame()
         _report(progress_cb, tr(f"[警告] 因子筛选跳过：{e}", f"[warn] screening skipped: {e}"), 0.35)
@@ -315,7 +331,7 @@ def run_stage_a(project: Project, progress_cb: ProgressCB = None,
     base_cap = compute_base_capacity(project, topology, dyn_std, rch_agg, riv_geom)
 
     _report(progress_cb, tr("计算面源滞留与输送率 ...", "Computing NPS retention/transport ..."), 0.88)
-    nps = compute_nps_flux(project, subattr, rch)
+    nps = compute_nps_flux(project, subattr, rch, analysis_years=sel_years, cio=cio)
 
     result = StageAResult(topology, subattr, screening, dyn_std, base_cap, nps,
                           project.calibration, rch_agg, riv_geom, sel_years)
