@@ -32,6 +32,7 @@ class FactorSpec:
     direction: str = "negative"     # 'negative' | 'positive'
     threshold: Optional[float] = None
     provenance: str = "default"     # 'monitoring_roc' | 'swat_quantile' | 'manual' | 'default'
+    weight: float = 1.0              # normalized in the adaptive weighted mean
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -72,11 +73,11 @@ class Calibration:
 def default_miyun_calibration() -> Calibration:
     return Calibration(
         factors=[
-            FactorSpec("Slope_pct", "negative", 19.153, "default"),
-            FactorSpec("Elev_m", "negative", 284.546, "default"),
+            FactorSpec("Slope_pct", "negative", 19.152642, "configured_swat_roc", 1.0),
+            FactorSpec("Elev_m", "negative", 330.604511, "configured_swat_roc", 1.0),
         ],
-        mode="default",
-        notes="密云内置默认：沿用原 generate_dynamic_standards.py 的 ROC 阈值。",
+        mode="configured_swat_roc",
+        notes="密云终稿配置：低值方向 ROC/Youden 点估计；AUC 较弱且阈值区间较宽，只作为流域特定运行估计。",
     )
 
 
@@ -99,10 +100,11 @@ class Project:
     # 仅保留编号；个别需要命名的子流域(如水库)放这里 {sub: {"zh":..,"en":..}}
     named_subbasins: Dict[int, dict] = field(default_factory=dict)
     # 容量计算的研究区相关修正（默认通用：无截断、无水库特例）
-    #   conc_clip_upper      : 模拟浓度上限截断 (mg/L)，复刻 v2 的 7.0；None=不截断
-    #   reservoir_overrides  : {sub_id: {"K": .., "V": .., "C_it": ..}} 水库本体特例
+    #   conc_clip_upper      : deprecated compatibility field; final revision leaves it None
+    #   reservoir_overrides  : {sub_id: {"K": .., "V": .., "inflow_conc_cap": ..}}
     conc_clip_upper: Optional[float] = None
     reservoir_overrides: Dict[int, dict] = field(default_factory=dict)
+    protection_nodes: List[int] = field(default_factory=list)
     # 数据登记（仅记录，用于校验/溯源，不参与计算）
     data_inputs: Dict[str, str] = field(default_factory=dict)
     # 标准表列名（可按本地命名覆盖）
@@ -165,6 +167,20 @@ class Project:
                     return p
         return None
 
+    def data_input_path(self, key: str) -> Optional[str]:
+        """Resolve an optional registered data input.
+
+        Relative paths are interpreted from the project root so that the
+        public example remains portable after ``git clone``.  Absolute paths
+        are retained for private/local projects.
+        """
+        value = self.data_inputs.get(key)
+        if not value:
+            return None
+        if os.path.isabs(value):
+            return os.path.normpath(value)
+        return os.path.normpath(os.path.join(self.root_dir, value))
+
     def has_point_source(self, year: Optional[int]) -> bool:
         """该年是否存在专属点源文件（严格，不回退总表）。"""
         return self.point_source_path(year, allow_base=False) is not None
@@ -224,6 +240,7 @@ class Project:
             "named_subbasins": {str(k): v for k, v in self.named_subbasins.items()},
             "conc_clip_upper": self.conc_clip_upper,
             "reservoir_overrides": {str(k): v for k, v in self.reservoir_overrides.items()},
+            "protection_nodes": self.protection_nodes,
             "data_inputs": self.data_inputs,
             "std_sub_col": self.std_sub_col,
             "std_limit_col": self.std_limit_col,
@@ -258,6 +275,7 @@ class Project:
             named_subbasins={int(k): v for k, v in (d.get("named_subbasins") or {}).items()},
             conc_clip_upper=d.get("conc_clip_upper"),
             reservoir_overrides={int(k): v for k, v in (d.get("reservoir_overrides") or {}).items()},
+            protection_nodes=[int(x) for x in d.get("protection_nodes", [])],
             data_inputs=d.get("data_inputs", {}),
             std_sub_col=d.get("std_sub_col", "子流域ID(SUB)"),
             std_limit_col=d.get("std_limit_col"),
@@ -296,8 +314,9 @@ class Project:
         # 默认标定：密云沿用原阈值与 v2 修正参数，否则通用（无截断/无特例）
         if "miyun" in proj.name.lower() or scenario == "Miyun_Calib_01":
             proj.calibration = default_miyun_calibration()
-            proj.conc_clip_upper = 7.0  # 潮白河历史监测水质上限（v2 极值截断）
-            proj.reservoir_overrides = {32: {"K": 0.025, "V": 2.0e9, "C_it": 1.0}}
+            proj.conc_clip_upper = None
+            proj.reservoir_overrides = {32: {"K": 0.025, "V": 2.0e9, "inflow_conc_cap": 7.0}}
+            proj.protection_nodes = [32]
             proj.named_subbasins = {32: {"zh": "密云水库", "en": "Miyun Reservoir"}}
         else:
             proj.calibration = Calibration(

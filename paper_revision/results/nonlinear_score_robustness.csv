@@ -1,0 +1,4 @@
+﻿score_shape,retention_lower_clipped_nodes,retention_upper_clipped_nodes,deficit_nodes,high_deficit_nodes,signed_deficit_sum_kg_d,total_deficit_magnitude_kg_d,total_surplus_kg_d,reservoir_classification,reservoir_inherited_concentration_cap_applied,benchmark_rank_spearman_vs_linear,capacity_rank_spearman_vs_linear,deficit_jaccard_vs_linear,top5_capacity_jaccard_vs_linear,top5_transmission_jaccard_vs_linear,changed_risk_classes_vs_linear
+linear,0,0,13,9,-22173.663028949377,22173.663028949377,19175.97058155921,Surplus,True,0.9999999999999998,1.0,1.0,1.0,1.0,0
+convex,0,0,13,10,-22242.783354602314,22242.783354602314,19153.690006946472,Surplus,True,0.9996028594122318,0.999266862170088,1.0,1.0,1.0,0
+concave,0,0,13,9,-22112.429337289766,22112.429337289766,19200.44493714228,Surplus,True,0.9999999999999998,0.9989002932551319,1.0,1.0,1.0,1

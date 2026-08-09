@@ -1,0 +1,3 @@
+﻿feature,n_subbasins,n_monthly_records,positive_class,positive_direction,auc,auc_ci_low,auc_ci_high,youden_threshold,threshold_ci_low,threshold_ci_high,bootstrap_replicates,bootstrap_unit
+Slope_pct,31,4092,configured SWAT monthly mean TN concentration > strict water-function-zone limit,lower feature value,0.5864415512127409,0.5400551285237389,0.6217248317277742,19.152642394642903,4.463205406326426,27.85803411047572,5000,sub-basin cluster
+Elev_m,31,4092,configured SWAT monthly mean TN concentration > strict water-function-zone limit,lower feature value,0.6021258581106755,0.5620255643699996,0.6342222682836478,330.604511386437,134.60869296656236,504.2856249654181,5000,sub-basin cluster

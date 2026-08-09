@@ -48,19 +48,21 @@
       {
         "name": "Slope_pct",
         "direction": "negative",
-        "threshold": 19.153,
-        "provenance": "default"
+        "threshold": 19.152642,
+        "provenance": "configured_swat_roc",
+        "weight": 1.0
       },
       {
         "name": "Elev_m",
         "direction": "negative",
-        "threshold": 284.546,
-        "provenance": "default"
+        "threshold": 330.604511,
+        "provenance": "configured_swat_roc",
+        "weight": 1.0
       }
     ],
-    "mode": "default",
+    "mode": "configured_swat_roc",
     "auc": {},
-    "notes": "密云内置默认：沿用原 generate_dynamic_standards.py 的 ROC 阈值。"
+    "notes": "终稿配置：低值方向 ROC/Youden 点估计；AUC 较弱且阈值区间较宽，仅作为流域特定运行估计。"
   },
   "calibration_by_year": {},
   "years": [
@@ -96,15 +98,20 @@
       "en": "Miyun Reservoir"
     }
   },
-  "conc_clip_upper": 7.0,
+  "conc_clip_upper": null,
   "reservoir_overrides": {
     "32": {
       "K": 0.025,
       "V": 2000000000.0,
-      "C_it": 1.0
+      "inflow_conc_cap": 7.0
     }
   },
-  "data_inputs": {},
+  "protection_nodes": [
+    32
+  ],
+  "data_inputs": {
+    "factor_screening_frame": "factor_screening_frame_final.csv"
+  },
   "std_sub_col": "子流域ID(SUB)",
   "std_limit_col": null
 }

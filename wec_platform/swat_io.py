@@ -16,6 +16,7 @@ year=None 即全年份平均）；read_output_rch 额外支持按日历年过滤
 """
 from __future__ import annotations
 
+import calendar
 import os
 import re
 from typing import Dict, List, Optional, Tuple
@@ -82,6 +83,59 @@ def _finalize_cio(info: Dict) -> Dict:
         info["output_years"] = []
     info["monthly"] = (info.get("iprint", 0) != 1)  # IPRINT=1 daily, 0/2 monthly/annual
     return info
+
+
+def _strict_monthly_rows(raw: pd.DataFrame, entity_col: str, mon_col: str,
+                         cio: Optional[Dict] = None,
+                         years: Optional[List[int]] = None) -> pd.DataFrame:
+    """Return only genuine monthly rows and assign calendar year/month.
+
+    SWAT2012 appends annual summaries and one long-term summary for every
+    reach/sub-basin.  A simple ``MON <= 12`` filter can admit the terminal
+    summary (its token may look like month 11), so the final-paper workflow
+    validates the ordered 12-month sequence and retains exactly
+    ``12 * len(output_years)`` rows per unit before applying a year subset.
+    """
+    out = raw[pd.to_numeric(raw[mon_col], errors="coerce").between(1, 12)].copy()
+    out[entity_col] = pd.to_numeric(out[entity_col], errors="raise").astype(int)
+    output_years = list((cio or {}).get("output_years") or [])
+    if output_years:
+        expected = 12 * len(output_years)
+        out["_SEQ"] = out.groupby(entity_col, sort=False).cumcount()
+        counts = out.groupby(entity_col).size()
+        if (counts < expected).any():
+            bad = counts[counts < expected].to_dict()
+            raise ValueError(f"{entity_col}: fewer than {expected} monthly rows: {bad}")
+        out = out[out["_SEQ"] < expected].copy()
+        out["YEAR"] = output_years[0] + out["_SEQ"] // 12
+        out["MONTH"] = out["_SEQ"] % 12 + 1
+        mon = pd.to_numeric(out[mon_col], errors="raise").astype(int)
+        mismatch = out[mon != out["MONTH"]]
+        if not mismatch.empty:
+            sample = mismatch[[entity_col, mon_col, "YEAR", "MONTH"]].head(1).to_dict("records")
+            raise ValueError(f"{entity_col}: monthly order check failed: {sample}")
+        out["DAYS"] = [calendar.monthrange(int(y), int(m))[1]
+                       for y, m in zip(out["YEAR"], out["MONTH"])]
+        out = out.drop(columns=["_SEQ"])
+        if years is not None:
+            requested = {int(y) for y in years}
+            unknown = requested.difference(output_years)
+            if unknown:
+                raise ValueError(f"Requested years are outside SWAT output years: {sorted(unknown)}")
+            out = out[out["YEAR"].isin(requested)].copy()
+        expected_kept = 12 * (len(years) if years is not None else len(output_years))
+        kept = out.groupby(entity_col).size()
+        if not (kept == expected_kept).all():
+            raise ValueError(f"{entity_col}: strict monthly counts are not all {expected_kept}")
+    else:
+        # Without file.cio metadata, at least reject non-month values.  The
+        # caller cannot request calendar-year filtering in this fallback.
+        if years is not None:
+            raise ValueError("Calendar-year filtering requires readable file.cio metadata")
+        out["MONTH"] = pd.to_numeric(out[mon_col], errors="raise").astype(int)
+        out["DAYS"] = 30.4166666667
+    out["MON"] = out["MONTH"]
+    return out.reset_index(drop=True)
 
 
 # ============================================================================
@@ -173,29 +227,24 @@ def read_output_rch(txtinout_dir: str, pollutant: Pollutant,
         "TN_IN": _col_sum(p.rch_in_cols),
         "TN_OUT": _col_sum(p.rch_out_cols),
     })
-    out = out[out["MON"] <= 12].copy()
-
-    # 为每个河段的月度行编号 -> 推算日历年（仅在需要按年过滤时）
-    if years is not None and cio and cio.get("output_years"):
-        start_year = cio["output_years"][0]
-        out["_idx"] = out.groupby("SUB").cumcount()
-        out["YEAR"] = start_year + (out["_idx"] // 12)
-        out = out[out["YEAR"].isin(years)].copy()
-        out = out.drop(columns=["_idx"])
-
-    return out.reset_index(drop=True)
+    cio = cio or read_file_cio(txtinout_dir)
+    return _strict_monthly_rows(out, "SUB", "MON", cio=cio, years=years)
 
 
 def rch_annual_means(rch: pd.DataFrame, conc_clip_upper: Optional[float] = None) -> pd.DataFrame:
     """按 SUB 聚合：年均流量(mean) + 质量通量加权长期平均浓度(复刻 calc_env_capacity_TN_v2)。
 
-    conc = Σ(TOT_load)·1000 / (Σ(FLOW_OUT)·86400·30.4)  [mg/L]
+    conc = Σ(TOT_load)·1000 / Σ(FLOW_OUT·86400·calendar_days)  [mg/L]
     conc_clip_upper 不为 None 时对浓度做上限截断（v2 取 7.0，研究区/污染物相关）。
     """
     g = rch.groupby("SUB").agg(total_flow=("FLOW_OUT", "sum"),
                                FLOW_OUT=("FLOW_OUT", "mean"),
                                total_N=("TOT_load", "sum")).reset_index()
-    total_vol = g["total_flow"] * 86400.0 * 30.4
+    if "DAYS" in rch.columns:
+        volume = (rch["FLOW_OUT"] * rch["DAYS"] * 86400.0).groupby(rch["SUB"]).sum()
+        total_vol = g["SUB"].map(volume)
+    else:
+        total_vol = g["total_flow"] * 86400.0 * 30.4
     g["conc"] = np.where(total_vol > 0, (g["total_N"] * 1000.0) / total_vol, 0.0)
     if conc_clip_upper is not None:
         g["conc"] = g["conc"].clip(upper=conc_clip_upper)
@@ -212,7 +261,8 @@ def rch_retention(rch: pd.DataFrame) -> pd.DataFrame:
 # output.sub —— 面源产污（复刻 calc_nps_flux.py 的逐行解析）
 # ============================================================================
 def read_output_sub(txtinout_dir: str, pollutant: Pollutant,
-                    sub_ids: List[int]) -> Tuple[Dict[int, float], int]:
+                    sub_ids: List[int], years: Optional[List[int]] = None,
+                    cio: Optional[Dict] = None) -> Tuple[Dict[int, float], int]:
     """解析 output.sub BIGSUB 行，返回 (sub -> 累加 kg/ha, months_count)。
 
     months_count 为单个子流域累加到的月份数（用于换算日均），复刻原脚本以 sub==first 计数。
@@ -221,7 +271,7 @@ def read_output_sub(txtinout_dir: str, pollutant: Pollutant,
     p = pollutant
     loads = {int(s): 0.0 for s in sub_ids}
     count_target = min(int(s) for s in sub_ids) if sub_ids else 1
-    months_count = 0
+    rows = []
 
     with open(path, "r", errors="ignore") as f:
         for _ in range(9):
@@ -231,7 +281,10 @@ def read_output_sub(txtinout_dir: str, pollutant: Pollutant,
             if len(parts) >= 28 and parts[0] == "BIGSUB":
                 try:
                     sub = int(parts[p.sub_id_col])
-                    mon_val = int(parts[p.sub_mon_col].split(".")[0])
+                    mon_token = parts[p.sub_mon_col]
+                    # The terminal long-term-average token starts with
+                    # ``11.0.`` and is not a true November observation.
+                    mon_val = 0 if mon_token.startswith("11.0.") else int(mon_token.split(".")[0])
                 except (ValueError, IndexError):
                     continue
                 if 1 <= mon_val <= 12:
@@ -239,10 +292,17 @@ def read_output_sub(txtinout_dir: str, pollutant: Pollutant,
                         yield_kg_ha = sum(float(parts[c]) for c in p.sub_yield_cols)
                     except (ValueError, IndexError):
                         continue
-                    if sub in loads:
-                        loads[sub] += yield_kg_ha
-                    if sub == count_target:
-                        months_count += 1
+                    rows.append({"SUB": sub, "MON_RAW": mon_val, "YIELD_KG_HA": yield_kg_ha})
+    if not rows:
+        return loads, 0
+    monthly = _strict_monthly_rows(
+        pd.DataFrame(rows), "SUB", "MON_RAW",
+        cio=cio or read_file_cio(txtinout_dir), years=years,
+    )
+    summed = monthly.groupby("SUB")["YIELD_KG_HA"].sum()
+    for sub in loads:
+        loads[sub] = float(summed.get(sub, 0.0))
+    months_count = int((monthly["SUB"] == count_target).sum())
     return loads, months_count
 
 

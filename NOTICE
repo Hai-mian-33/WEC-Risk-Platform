@@ -7,31 +7,46 @@ Copyright (c) 2026 Sun Haiming. Released under the MIT License (see LICENSE).
 ------------------------------------------------------------------------------
 PATENT NOTICE / 专利声明
 ------------------------------------------------------------------------------
-The water-quality management METHOD implemented by this software (dynamic
-adaptive standard + base/actual water environmental capacity + two-class
-pollution risk indices, i.e. local risk LP and upstream-transport risk TR) is
-the subject of a separate patent / patent application held by the author(s)
-(Chinese Patent Application No. 202610879952.8).
+A Chinese invention patent application related to the CRS-ACM methodology
+(Application No. 202610879952.8) was filed by Tsinghua University on
+17 June 2026. The application is pending and should not be interpreted as a
+granted patent. The WEC-Risk Platform source code is released under the MIT
+License. The software license grants copyright permissions but does not
+constitute an express patent license.
 
-The MIT License above applies to THIS SOFTWARE (source code) only. It does NOT
-grant any license, express or implied, to the patented method. Use of the
-patented method may require separate authorization from the patent holder.
+清华大学于 2026 年 6 月 17 日提交了与 CRS-ACM 方法相关的中国发明专利申请
+（申请号 202610879952.8）。该申请尚在审查中，不应被解释为已获授权的专利。
+WEC-Risk Platform 源代码按 MIT 许可证发布。该软件许可证授予版权层面的许可，
+但不构成明示的专利许可。
 
-本软件所实现的水质管理“方法”（动态自适应标准 + 基础/实际水环境容量 + 两类污染
-风险指数 LP/TR）已由作者另行申请专利（中国专利申请号 202610879952.8）。上述 MIT 许可仅
-适用于本软件“代码”，不授予对该专利方法的任何许可；使用该专利方法可能需另行获得
-专利权人授权。
+The patent application concerns methodology and is separate from copyright in
+the software source. The MIT License permits use, copying, modification,
+distribution, sublicensing, and sale of copies under its copyright terms. It
+does not decide whether a particular implementation practices any claim that
+might eventually be granted. This notice is informational and is not legal
+advice.
+
+专利申请所涉及的方法与软件源代码版权属于不同法律问题。MIT 许可证允许在其版权
+条款下使用、复制、修改、分发、再许可和销售软件副本，但不判断某一具体实现是否落入
+未来可能获授权的专利权利要求。本说明仅用于信息披露，不构成法律意见。
 
 ------------------------------------------------------------------------------
 THIRD-PARTY COMPONENTS / 第三方组件
 ------------------------------------------------------------------------------
 This software builds on open-source libraries, each under its own license,
-including: PyQt5 / PyQtWebEngine (GPL/commercial), Leaflet & folium (BSD/MIT),
-pandas, numpy, scipy, scikit-learn, geopandas, shapely, pyproj, pyogrio,
-matplotlib, branca, dbfread. Base-map tiles are © OpenStreetMap contributors,
-© CARTO, and Esri (used under their respective terms). SWAT (Soil & Water
-Assessment Tool) is developed by USDA-ARS / Texas A&M.
+including PyQt5 / PyQtWebEngine (GPL/commercial), Leaflet and folium
+(BSD/MIT), pandas, NumPy, SciPy, scikit-learn, geopandas, shapely, pyproj,
+pyogrio, matplotlib, branca, and dbfread. Base-map tiles are © OpenStreetMap
+contributors, © CARTO, and Esri, used under their respective terms. SWAT
+(Soil & Water Assessment Tool) is developed by USDA-ARS / Texas A&M.
 
-NOTE: PyQt5 is GPL-licensed. If you redistribute a built binary (the bundled
-.exe), ensure your distribution complies with PyQt5's GPL terms (or obtain a
-Riverbank commercial license). Distributing the source under MIT is unaffected.
+NOTE: PyQt5 is GPL-licensed. If you redistribute a built binary containing
+PyQt5, ensure that the distribution complies with PyQt5's GPL terms or obtain
+an appropriate commercial Qt license. Distributing the project source under
+MIT is a separate matter.
+
+本软件使用若干分别适用其自身许可证的开源组件，包括 PyQt5 / PyQtWebEngine、
+Leaflet、folium、pandas、NumPy、SciPy、scikit-learn、geopandas、shapely、
+pyproj、pyogrio、matplotlib、branca 和 dbfread。底图服务应按各自条款使用。
+如发布包含 PyQt5 的编译二进制文件，应另行确保符合 PyQt5 的 GPL 条款，或取得适当
+的 Qt 商业许可；这与按 MIT 发布本项目源代码是不同的问题。

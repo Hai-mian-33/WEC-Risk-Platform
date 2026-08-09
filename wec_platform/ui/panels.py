@@ -229,30 +229,30 @@ class CalibPanel(QWidget):
             "再计算每个候选因子与 TN 产出的 <b>Spearman 单调相关 ρ（含 p 值）</b>与<b>互信息 MI</b>。"
             "② 因子识别<b>以 Spearman 单调相关（ρ 强、p 显著）+ 物理机制为主判据</b>；"
             "MI 仅作非线性依赖的<b>补充参考</b>（小样本截面下偏低且不稳，不作硬性门槛）。"
-            "例如高程 Elev 以最强单调相关入选（ρ=−0.672, p&lt;0.001）。"
+            "例如高程 Elev 以最强单调相关入选（ρ=−0.667, q&lt;0.001）。"
             "③ 动态标准只采用<b>坡度、高程</b>这两个负相关、代表稳定自然本底的地形因子"
             "（值越小→自净/缓冲能力越弱→标准适当放宽）；农用地、城镇等土地利用变量可被人为改变，"
             "不作为放宽依据。<br>"
             "④ 表中各列：『相关方向』正/负相关；『MI&ρ阈值(参考)』是否同时满足 MI&gt;0.05 且 |ρ|&gt;0.3"
             "（<b>仅供参考，不决定入选</b>）；<b>『用于动态标准』该因子是否真正参与标准计算——以此列为最终判断</b>。<br>"
-            "<b>阈值标定模式</b>：「监测 ROC/Youden」用独立监测(藻细胞)求最优切点（本研究得 Slope=19.153、Elev=284.546）；"
+            "<b>阈值估计模式</b>：「ROC/Youden」针对预先规定的二元结局求切点（本研究配置型估计为 Slope=19.153%、Elev=330.605 m）；"
             "「SWAT 分位数」为无监测时的退回方案（阈值取分位数 q=0.5 即中位数，标 provisional）。",
             "<b>Key-factor identification logic</b>: "
             "① Aggregate SWAT's 'subbasin × month' data to <b>one row per subbasin</b> "
-            "(n = number of subbasins, here 32), then compute each candidate's <b>Spearman monotonic "
+            "(n = number of actual sub-basins, here 31), then compute each candidate's <b>Spearman monotonic "
             "correlation ρ (with p-value)</b> and <b>mutual information MI</b> vs TN export. "
             "② Factors are identified <b>primarily by Spearman monotonic correlation (strong ρ, significant p) "
             "+ physical mechanism</b>; MI serves <b>only as a supplementary reference</b> for non-linear "
             "dependence (low and unstable on small cross-sections, not a hard threshold). E.g. elevation (Elev) "
-            "enters by the strongest monotonic correlation (ρ=−0.672, p&lt;0.001). "
+            "enters by the strongest monotonic correlation (ρ=−0.667, FDR q&lt;0.001). "
             "③ The dynamic standard uses only <b>Slope and Elev</b> — negatively-correlated terrain factors "
             "representing a stable natural baseline (smaller value → weaker self-purification → relax the "
             "standard); human-alterable land-use variables (cropland, urban, …) are not used as a basis. <br>"
             "④ Columns: 'Direction' = positive/negative; 'MI&ρ rule (ref.)' = whether MI&gt;0.05 AND |ρ|&gt;0.3 "
             "(<b>for reference only, does not decide selection</b>); <b>'Used in standard' = whether the factor "
             "actually drives the standard — this column is the final decision</b>.<br>"
-            "<b>Threshold modes</b>: 'Monitoring ROC/Youden' finds the optimal cut against independent monitoring "
-            "(algae; this study got Slope=19.153, Elev=284.546). 'SWAT quantile' is the no-monitoring fallback "
+            "<b>Threshold modes</b>: 'ROC/Youden' finds the cut against a prespecified binary outcome "
+            "(configured Miyun estimates: Slope=19.153%, Elevation=330.605 m). 'SWAT quantile' is the fallback "
             "(threshold = quantile q=0.5 = median, marked provisional)."))
         info.setWordWrap(True)
         info.setObjectName("hint")
@@ -401,7 +401,7 @@ class CalibPanel(QWidget):
         self.state.recompute_stage_b()
         self._fill_factors()
         self.status_cb(tr(f"标定完成（{method}，{scope_msg}）。动态标准/容量/风险已同步更新。",
-                          f"Calibrated ({method}, {scope_msg}). Standard/capacity/risk updated.") +
+                          f"Thresholds updated ({method}, {scope_msg}). Benchmark/capacity/risk refreshed.") +
                        (tr("【provisional】", " [provisional]") if calib.is_provisional else ""))
 
     def _do_validate(self):

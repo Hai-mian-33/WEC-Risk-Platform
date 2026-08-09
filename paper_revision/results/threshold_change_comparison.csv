@@ -1,0 +1,4 @@
+calculation,units,n_monthly_records,positive_events,slope_auc,slope_threshold_pct,elevation_auc,elevation_threshold_m
+Legacy parser and legacy 32-node population,32,4256,1841,0.593737,19.152642,0.607856,284.545548
+Legacy parser with node 32 removed,31,4123,1753,0.586466,19.152642,0.602248,330.604511
+Final strict parser and 31 river sub-basins,31,4092,1723,0.5864415512127409,19.152642394642903,0.6021258581106755,330.604511386437
