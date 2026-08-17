@@ -1,0 +1,10 @@
+﻿Scenario,Configuration,Sub-basin 31 reduction (%),Outlet 27 reduction (%)
+S1,15 m filter strip; urea 100 kg product ha^-1 (46 kg N ha^-1),72.91608518778852,12.14889937227925
+S2,30 m filter strip; urea 100 kg product ha^-1 (46 kg N ha^-1),87.71827409068977,14.619569393374881
+S3,15 m filter strip; urea 150 kg product ha^-1 (69 kg N ha^-1),72.02933988307458,12.003999661137446
+S4,30 m filter strip; urea 150 kg product ha^-1 (69 kg N ha^-1),87.69011255576947,14.615785358581016
+S5,Conservation tillage,17.008646504658515,2.82773181506547
+S6,Terrace,38.272841299136346,6.375209209171967
+S7,20 m riparian buffer,78.26024999391231,13.040399841603767
+S8,Terminal wetland,0.15833349060985394,0.023783853395565407
+S9,"Combined field, 30 m buffer, urea 100 kg product ha^-1, and wetland measures",87.58284483798194,14.599152527141804
