@@ -1,0 +1,6 @@
+﻿scenario,fertilizer_id,fertilizer_name,fraction_mineral_n,fraction_mineral_p,fraction_organic_n,fraction_organic_p,fraction_nh3_n,raw_fert_dat_line
+S1,4,UREA,0.46,0.0,0.0,0.0,1.0,   4     UREA   0.460   0.000   0.000   0.000   1.0000.00E+000.00E+00   0.000
+S2,4,UREA,0.46,0.0,0.0,0.0,1.0,   4     UREA   0.460   0.000   0.000   0.000   1.0000.00E+000.00E+00   0.000
+S3,4,UREA,0.46,0.0,0.0,0.0,1.0,   4     UREA   0.460   0.000   0.000   0.000   1.0000.00E+000.00E+00   0.000
+S4,4,UREA,0.46,0.0,0.0,0.0,1.0,   4     UREA   0.460   0.000   0.000   0.000   1.0000.00E+000.00E+00   0.000
+S9,4,UREA,0.46,0.0,0.0,0.0,1.0,   4     UREA   0.460   0.000   0.000   0.000   1.0000.00E+000.00E+00   0.000

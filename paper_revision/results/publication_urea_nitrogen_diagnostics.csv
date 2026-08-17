@@ -1,0 +1,36 @@
+﻿scenario,scope,metric,value,units,aggregation_rule
+S1,Recorded fertilizer events,Applied fertilizer product per event,100.0,kg product ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S1,Recorded fertilizer events,Applied ammoniacal N per event,46.0,kg N ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S1,Target agricultural HRUs in sub-basin 31,Plant N uptake,128.30359973629163,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S1,Target agricultural HRUs in sub-basin 31,Denitrification,184.86949281213904,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S1,Target agricultural HRUs in sub-basin 31,Nitrate leaching,11.384591515859524,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S1,Sub-basin 31 soil state,Soil nitrate,20.076936718312783,kg N ha^-1,Arithmetic mean of post-warm-up target-sub-basin soil-state records
+S1,Reach node 31,Reach TN flow-weighted concentration,5.810057841900137,mg N L^-1,2015-2025 exported TN mass divided by routed water volume
+S2,Recorded fertilizer events,Applied fertilizer product per event,100.0,kg product ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S2,Recorded fertilizer events,Applied ammoniacal N per event,46.0,kg N ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S2,Target agricultural HRUs in sub-basin 31,Plant N uptake,128.30359973629163,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S2,Target agricultural HRUs in sub-basin 31,Denitrification,184.86949281213904,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S2,Target agricultural HRUs in sub-basin 31,Nitrate leaching,11.384591515859524,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S2,Sub-basin 31 soil state,Soil nitrate,20.076936718312783,kg N ha^-1,Arithmetic mean of post-warm-up target-sub-basin soil-state records
+S2,Reach node 31,Reach TN flow-weighted concentration,2.6346832954622434,mg N L^-1,2015-2025 exported TN mass divided by routed water volume
+S3,Recorded fertilizer events,Applied fertilizer product per event,150.0,kg product ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S3,Recorded fertilizer events,Applied ammoniacal N per event,69.0,kg N ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S3,Target agricultural HRUs in sub-basin 31,Plant N uptake,131.23848672695212,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S3,Target agricultural HRUs in sub-basin 31,Denitrification,196.78330780622196,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S3,Target agricultural HRUs in sub-basin 31,Nitrate leaching,13.496373516827305,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S3,Sub-basin 31 soil state,Soil nitrate,21.252809408251306,kg N ha^-1,Arithmetic mean of post-warm-up target-sub-basin soil-state records
+S3,Reach node 31,Reach TN flow-weighted concentration,5.999562422310041,mg N L^-1,2015-2025 exported TN mass divided by routed water volume
+S4,Recorded fertilizer events,Applied fertilizer product per event,150.0,kg product ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S4,Recorded fertilizer events,Applied ammoniacal N per event,69.0,kg N ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S4,Target agricultural HRUs in sub-basin 31,Plant N uptake,131.23848672695212,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S4,Target agricultural HRUs in sub-basin 31,Denitrification,196.78330780622196,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S4,Target agricultural HRUs in sub-basin 31,Nitrate leaching,13.496373516827305,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S4,Sub-basin 31 soil state,Soil nitrate,21.252809408251306,kg N ha^-1,Arithmetic mean of post-warm-up target-sub-basin soil-state records
+S4,Reach node 31,Reach TN flow-weighted concentration,2.640407406351543,mg N L^-1,2015-2025 exported TN mass divided by routed water volume
+S9,Recorded fertilizer events,Applied fertilizer product per event,100.0,kg product ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S9,Recorded fertilizer events,Applied ammoniacal N per event,46.0,kg N ha^-1 event^-1,Mean across the 66 recorded events (6 target HRUs x 11 analysis years)
+S9,Target agricultural HRUs in sub-basin 31,Plant N uptake,113.07381074981885,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S9,Target agricultural HRUs in sub-basin 31,Denitrification,207.58655774109263,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S9,Target agricultural HRUs in sub-basin 31,Nitrate leaching,12.998499528351395,kg N ha^-1 yr^-1,Monthly flux summed within HRU-year; HRU area-weighted within year; arithmetic mean over 2015-2025
+S9,Sub-basin 31 soil state,Soil nitrate,19.59592744695436,kg N ha^-1,Arithmetic mean of post-warm-up target-sub-basin soil-state records
+S9,Reach node 31,Reach TN flow-weighted concentration,2.6759371863695858,mg N L^-1,2015-2025 exported TN mass divided by routed water volume
